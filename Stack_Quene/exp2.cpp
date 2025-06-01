@@ -7,7 +7,7 @@ void dfs(int i,Stack<char> &S,Stack<char> &Q,string &x);
 
 int main(){
     string x;
-    cout<<"ÇëÊäÈëÊý×Ö´®:"<<endl;
+    cout<<"è¯·è¾“å…¥æ•°å­—ä¸²:"<<endl;
     cin>>x;
 
     Stack<char> S(x.length());

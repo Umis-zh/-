@@ -5,7 +5,7 @@ using namespace std;
 int main(){
 
     int n,k,m;
-    cout<<"ÇëÊäÈë³õÊ¼ÈËÊý£¬³öÈ¦µÄ±¨Êý£¬ÁôÏÂµÄÈËÊý"<<endl;
+    cout<<"è¯·è¾“å…¥åˆå§‹äººæ•°ï¼Œå‡ºåœˆçš„æŠ¥æ•°ï¼Œç•™ä¸‹çš„äººæ•°"<<endl;
     cin>>n>>k>>m;
     Queue<int> Q(n+1);
     for(int i=1;i<=n;i++)Q.enQueue(i);

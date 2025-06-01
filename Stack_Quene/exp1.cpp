@@ -4,11 +4,11 @@
 bool pipei(Stack<char> &s,std::string &x);
 int main(){
     std::string x;
-    std::cout<<"????????:"<<std::endl;
+    std::cout<<"请输入界符:"<<std::endl;
     std::cin>>x;
     Stack<char> s(x.length());
-    if(pipei(s,x)) std::cout<<"???";
-    else std::cout<<"?????";
+    if(pipei(s,x)) std::cout<<"合法！";
+    else std::cout<<"不合法！";
     return 0;
 }
 bool pipei(Stack<char> &s,std::string &x){
