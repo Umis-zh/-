@@ -57,7 +57,7 @@ int main(){
     BiTree x2(y);
     cout<<endl;
     cout<<endl;
-    btNode *father1,*father2,*target1,*target2=NULL;
+    btNode *father1=NULL,*father2=NULL,*target1=NULL,*target2=NULL;
     getNode(x1.root,'h',father1,target1);
     getNode(x2.root,'C',father2,target2);
     nodeInformation(father1,target1);

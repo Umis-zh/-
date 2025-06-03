@@ -120,6 +120,7 @@ void Queue<T>::print()
         i=(i+1)%length;
         std::cout<<data[i]<<" ";
     }
+    cout<<endl;
     return;
 }
 

@@ -91,6 +91,7 @@ bool Stack<T>::print() {
         std::cout<<data[i]<<" ";
         i++;
     }
+    cout<<endl;
     return true;
 }
 
