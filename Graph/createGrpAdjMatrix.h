@@ -17,6 +17,28 @@ struct Graph
 	int ArcNum;
 };
 
+bool DFSPath(Graph &G, int v, int w, bool visited[]) {
+    if (v == w)
+        return true;
+    visited[v] = true;
+    for (int i = 1; i <= G.VerNum; i++) {
+        if (G.AdjMatrix[v][i] != 0 && G.AdjMatrix[v][i] != INF && !visited[i]) {
+            if (DFSPath(G, i, w, visited))
+                return true;
+        }
+    }
+    return false;
+}
+
+bool HasPath(Graph &G, int v, int w) {
+    // v 和 w 是顶点编号，从1开始
+    if (v < 1 || v > G.VerNum || w < 1 || w > G.VerNum)
+        return false; // 非法顶点编号
+    bool visited[MaxLen] = {false}; // 访问标记初始化
+    return DFSPath(G, v, w, visited);
+}
+
+
 
 //*************************从数据文件创建图**************************//
 //* 函数功能：从文本文件创建邻接矩阵表示的图                        *//

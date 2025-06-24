@@ -21,6 +21,11 @@ int readData(const char *filename,int *data,int maxlen){
     return count;
 }
 
+void printArray(int arr[], int n) {
+    for (int i = 0; i < n; ++i) cout << arr[i] << " ";
+    cout << endl;
+}
+
 int binarySearch(int data[],int low,int high,int key){
     if(high>low){
         int mid=(low+high)/2;

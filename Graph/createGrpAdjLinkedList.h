@@ -1,5 +1,6 @@
 #include <cstring>
 #include <iostream>
+#include "Stack.h"
 #define elementType char
 #define eInfoType int
 #define MaxLen 100
@@ -27,13 +28,157 @@ struct Graph
 	GraphKind gKind;
 	int VerNum;
 	int ArcNum;
-
 };
 
 void strLTrim(char* str);  //删除字符串左边空格
 
+// 函数功能：统计图 G 中的边或弧的数量
+// 参数：Graph &G —— 已构造的图（邻接表形式）
+// 返回值：int —— 边（或弧）的数量
+int countEdges(Graph &G) {
+    int count = 0;
+
+    // 遍历图中每个顶点
+    for (int i = 1; i <= G.VerNum; ++i) {
+        EdgeNode *p = G.VerList[i].firstEdge;
+
+        // 遍历当前顶点的边链表，统计边数
+        while (p) {
+            count++;
+            p = p->next;
+        }
+    }
+
+    // 对于无向图，每条边在两个顶点中各存储了一次，需除以 2
+    if (G.gKind == UDG || G.gKind == UDN)
+        return count / 2;
+    else  // 有向图中每条弧只存储一次
+        return count;
+}
+
+#define elementType char
+
+// 查找顶点 v 的编号（从 1 开始）
+int getIndex(Graph *G, elementType v) {
+    for (int i = 1; i <= G->VerNum; ++i) {
+        if (G->VerList[i].data == v)
+            return i;
+    }
+    return -1; // 未找到
+}
+
+// 函数功能：返回顶点 v 的第一个邻接点
+// 参数：G —— 图；v ——顶点字符
+// 返回值：第一个邻接点的字符，若无邻接点返回 '\0'
+elementType firstAdj(Graph *G, elementType v) {
+    int index = getIndex(G, v);
+    if (index == -1 || G->VerList[index].firstEdge == NULL)
+        return '\0'; // 不存在或没有邻接点
+
+    int adjIndex = G->VerList[index].firstEdge->adjVer;
+    return G->VerList[adjIndex].data;
+}
+
+// 函数功能：返回顶点 v 的邻接点中，w 的下一个邻接点
+// 参数：G —— 图；v ——顶点；w —— v 的一个邻接点
+// 返回值：下一个邻接点字符，若无返回 '\0'
+elementType nextAdj(Graph *G, elementType v, elementType w) {
+    int indexV = getIndex(G, v);
+    int indexW = getIndex(G, w);
+    if (indexV == -1 || indexW == -1)
+        return '\0';
+
+    EdgeNode *p = G->VerList[indexV].firstEdge;
+    while (p && p->adjVer != indexW) {
+        p = p->next;
+    }
+    if (p && p->next) {
+        return G->VerList[p->next->adjVer].data;
+    }
+    return '\0'; // 没有下一个邻接点
+}
+
+void dfs(Graph *G, int v, int *visited, int *count) {
+    visited[v] = 1;
+    (*count)++;
+    int w = firstAdj(G, v);
+    while (w != -1) {
+        if (!visited[w])
+            dfs(G, w, visited, count);
+        w = nextAdj(G, v, w);
+    }
+}
+
+
+bool isDirectedTree(Graph *G, elementType v0) {
+    int inDegree[MaxLen] = {0};
+    int visited[MaxLen] = {0};
+    int count = 0;
+
+    int v0Index = getIndex(G, v0);
+    if (v0Index == -1) return false;
+
+    // 统计每个点的入度
+    for (int i = 1; i <= G->VerNum; ++i) {
+        int w = firstAdj(G, i);
+        while (w != -1) {
+            inDegree[w]++;
+            w = nextAdj(G, i, w);
+        }
+    }
+
+    // 确认仅有一个入度为 0 的顶点且它是 v0
+    int rootCount = 0, rootIndex = -1;
+    for (int i = 1; i <= G->VerNum; ++i) {
+        if (inDegree[i] == 0) {
+            rootCount++;
+            rootIndex = i;
+        }
+    }
+    if (rootCount != 1 || rootIndex != v0Index)
+        return false;
+
+    // 用 DFS 检查从 v0 是否能访问所有顶点
+    dfs(G, v0Index, visited, &count);
+
+    return count == G->VerNum;
+}
+
+void GenerateDFSTree(Graph *G, int B[MaxLen][MaxLen]) {
+    int visited[MaxLen] = {0};  // 标记顶点是否访问过
+    Stack<int> s(MaxLen);
+
+    int v = 1;  // 假设从编号为1的顶点开始
+    s.push(v);
+    visited[v] = 1;
+
+    while (!s.empty()) {
+        int curr;
+        s.getTop(curr);
+
+        int w = firstAdj(G, curr);
+        bool found = false;
+
+        while (w != -1) {
+            if (!visited[w]) {
+                B[curr][w] = 1;
+                B[w][curr] = 1;  // 若是无向图，存对称边
+                s.push(w);
+                visited[w] = 1;
+                found = true;
+                break;
+            }
+            w = nextAdj(G, curr, w);
+        }
+
+        if (!found) s.pop();  // 若没有未访问邻接点则回退
+    }
+}
+
+
+
 //***************************2 文件创建图****************************//
-//* 函数功能：从文本文件创建邻接矩阵表示的图                        *//
+//* 函数功能：从文本文件创建邻接表表示的图                        *//
 //* 入口参数  char fileName[]，文件名                               *//
 //* 出口参数：Graph &G，即创建的图                                  *//
 //* 返 回 值：bool，true创建成功；false创建失败                     *//
