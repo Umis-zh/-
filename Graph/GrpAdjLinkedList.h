@@ -96,6 +96,25 @@ int nextAdj(Graph *G, elementType v, elementType w) {
     return -1; // 没有下一个邻接点
 }
 
+int firstAdj(Graph *G, int vIndex) {
+    if (vIndex <= 0 || vIndex > G->VerNum || G->VerList[vIndex].firstEdge == NULL)
+        return -1;
+    return G->VerList[vIndex].firstEdge->adjVer;
+}
+
+int nextAdj(Graph *G, int vIndex, int wIndex) {
+    if (vIndex <= 0 || vIndex > G->VerNum)
+        return -1;
+
+    EdgeNode *p = G->VerList[vIndex].firstEdge;
+    while (p && p->adjVer != wIndex)
+        p = p->next;
+    if (p && p->next)
+        return p->next->adjVer;
+    return -1;
+}
+
+
 
 void dfs(Graph *G, int v, int *visited, int *count) {
     visited[v] = 1;
@@ -175,143 +194,6 @@ void GenerateDFSTree(Graph *G, int B[MaxLen][MaxLen]) {
 }
 
 
-
-//***************************2 文件创建图****************************//
-//* 函数功能：从文本文件创建邻接表表示的图                        *//
-//* 入口参数  char fileName[]，文件名                               *//
-//* 出口参数：Graph &G，即创建的图                                  *//
-//* 返 回 值：bool，true创建成功；false创建失败                     *//
-//* 函 数 名：CreateGrpFromFile(char fileName[], Graph &G)          *//
-//* 备    注：本函数使用的数据文件以邻接矩阵为输入数据              *//
-//*******************************************************************//
-int CreateGrpFromFile1(char fileName[], Graph &G)
-{
-	FILE* pFile;     //定义顺序表的文件指针
-	char str[1000];  //存放读出一行文本的字符串
-	char strTemp[10]; //判断是否注释行
-	char* ss; 
-    int i=0,j=0;
-	int edgeNum=0;  //边的数量
-
-	GraphKind graphType;  //图类型枚举变量
-
-	pFile=fopen(fileName,"r");
-	if(!pFile)
-	{
-		printf("错误：文件%s打开失败。\n",fileName);
-		return false;
-	}
-	
-	ss=fgets(str,1000,pFile);
-	strncpy(strTemp,str,2);
-	while((ss!=NULL) && (strstr(strTemp,"//")!=NULL) )  //跳过注释行
-	{
-		ss=fgets(str,1000,pFile);
-		strncpy(strTemp,str,2);
-		//cout<<strTemp<<endl;
-	}
-	    //循环结束，str中应该已经是文件标识，判断文件格式
-	//cout<<str<<endl;
-	if(strstr(str,"Graph")==NULL)
-	{
-		printf("错误：打开的文件格式错误！\n");
-		fclose(pFile); //关闭文件
-		return false;
-	}
-    //读取图的类型
-	if(fgets(str,1000,pFile)==NULL)
-	{
-		printf("错误：读取图的类型标记失败！\n");
-		fclose(pFile); //关闭文件
-		return false;
-	}
-    //设置图的类型
-	if(strstr(str,"UDG"))
-		graphType=UDG;  //无向图
-	else if(strstr(str,"UDN"))
-		graphType=UDN;  //无向网
-	else if(strstr(str,"DG"))
-		graphType=DG;   //有向图
-	else if(strstr(str,"DN"))
-		graphType=DN;   //有向网
-	else
-	{
-		printf("错误：读取图的类型标记失败！\n");
-		fclose(pFile); //关闭文件
-		return false;
-	}
-
-	//读取顶点元素，到str
-	if(fgets(str,1000,pFile)==NULL)
-	{
-		printf("错误：读取图的顶点元素失败！\n");
-		fclose(pFile); //关闭文件
-		return false;
-	}
-
-
-	//顶点数据放入图的顶点数组		
-	char* token=strtok(str," ");
-	int nNum=1;	
-	while(token!=NULL)
-	{
-		G.VerList[nNum].data=*token;
-		G.VerList[nNum].firstEdge=NULL;
-		//p=NULL;
-		//eR=G.VerList[i].firstEdge;
-        token = strtok( NULL, " ");
-		nNum++;
-	}
-	
-    //循环读取邻接矩阵数据
-	int nRow=1;		//矩阵行下标
-	int nCol=1;		//矩阵列下标
-	EdgeNode* eR;	//边链表尾指针
-	EdgeNode* p;    
-	
-	while(fgets(str,1000,pFile)!=NULL)
-	{
-		eR=NULL;
-		p=NULL;
-		nCol=1;  //列号设为0，一行重新开始
-		char* token=strtok(str," ");  //以空格为分隔符，分割一行数据，写入邻接矩阵
-		while(token!=NULL)
-		{			
-			if(atoi(token)>=1 && atoi(token)<INF)  //考虑到网
-			{
-				p=new EdgeNode;  //申请一个边链表结点
-				p->adjVer=nCol;   //顶点的编号，从1开始
-				p->eInfo=atoi(token);  //有权图保存权值，无权图为1
-				p->next=NULL;
-				if(G.VerList[nRow].firstEdge==NULL)
-				{
-					G.VerList[nRow].firstEdge=p;
-					eR=p;
-				}
-				else
-				{
-					eR->next=p;
-					eR=p;  //新的尾指针				
-				}				
-				edgeNum++;   //边数加1
-			}
-			token = strtok( NULL, " ");  //读取下一个子串
-			nCol++;
-		}
-		nRow++; //一行数据处理完毕
-	}
-
-    G.VerNum=nNum;  //图的顶点数
-	if(graphType==UDG || graphType==UDN)
-		G.ArcNum=edgeNum / 2;  //无向图或网的边数等于统计的数字除2  
-	else
-		G.ArcNum=edgeNum;
-
-	G.gKind=graphType;  //图的类型
-
-	fclose(pFile); //关闭文件
-	return true;
-}
 
 //***************************3 文件创建图****************************//
 //* 函数功能：从文本文件创建邻接矩阵表示的图                        *//

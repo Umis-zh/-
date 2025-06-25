@@ -19,7 +19,7 @@ int main() {
     for (int i = 0; i < 4; ++i) {
         Graph G;
         cout << labels[i] << "：";
-        if (CreateGrpFromFile1((char*)files[i], G)) {
+        if (CreateGraphFromFile((char*)files[i], G)) {
             int edgeCount = countEdges(G);
             cout << "边（或弧）数量为：" << edgeCount << endl;
         } else {
