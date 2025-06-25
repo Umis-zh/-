@@ -26,14 +26,29 @@ void printArray(int arr[], int n) {
     cout << endl;
 }
 
-int binarySearch(int data[],int low,int high,int key){
-    if(high>low){
-        int mid=(low+high)/2;
-        if(data[mid]==key) return mid;
-        else if(data[mid]>key) return binarySearch(data,low,mid-1,key);
-        else return binarySearch(data,mid+1,high,key);
+int binarySearchTrace(int arr[], int low, int high, int key) {
+    cout << "查找 " << key << "：比较值序列 ";
+
+    while (low <= high) {
+        int mid = (low + high) / 2;
+        cout << arr[mid] << " ";
+
+        if (arr[mid] == key) {
+            cout << "✅ 找到\n";
+            return mid;
+        } else if (arr[mid] > key) {
+            high = mid - 1;
+        } else {
+            low = mid + 1;
+        }
     }
+
+    cout << "❌ 未找到\n";
+    return -1;
 }
+
+
+
 
 typedef struct biNode{
     int data;
@@ -65,6 +80,21 @@ void computeASL(btTree root, int depth, int &totalDepth, int &count) {
     computeASL(root->lchild, depth + 1, totalDepth, count);
     computeASL(root->rchild, depth + 1, totalDepth, count);
 }
+
+bool searchWithTrace(btTree root, int key) {
+    cout << " 查找 " << key << " 比较序列：";
+    while (root) {
+        cout << root->data << " ";
+        if (key == root->data) {
+            cout << "找到\n";
+            return true;
+        }
+        root = (key < root->data) ? root->lchild : root->rchild;
+    }
+    cout << "未找到\n";
+    return false;
+}
+
 
 btTree findMin(btTree node) {
     while (node && node->lchild) node = node->lchild;

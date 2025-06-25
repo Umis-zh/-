@@ -36,11 +36,14 @@ void insertionSort(int arr[], int n) {
     for (int i = 1; i < n; ++i) {
         int key = arr[i];
         int j = i - 1;
-        while (j >= 0 && arr[j] > key)
-            arr[j + 1] = arr[j--];
+        while (j >= 0 && arr[j] > key) {
+            arr[j + 1] = arr[j];
+            j--;
+        }
         arr[j + 1] = key;
     }
 }
+
 
 void shellSort(int arr[], int n) {
     for (int gap = n / 2; gap > 0; gap /= 2) {
@@ -62,22 +65,32 @@ void bubbleSort(int arr[], int n) {
                 swap(arr[j], arr[j + 1]);
 }
 
-int partition(int arr[], int low, int high) {
-    int pivot = arr[high], i = low - 1;
-    for (int j = low; j < high; ++j)
-        if (arr[j] < pivot)
-            swap(arr[++i], arr[j]);
-    swap(arr[i + 1], arr[high]);
-    return i + 1;
+void partition(int arr[], int low, int high, int &mid) {
+    int pivot = arr[low];  // 用第一个元素作为基准值
+    while (low < high) {
+        // 从右往左找第一个小于 pivot 的数
+        while (low < high && arr[high] >= pivot)
+            --high;
+        arr[low] = arr[high]; 
+
+        // 从左往右找第一个大于 pivot 的数
+        while (low < high && arr[low] <= pivot)
+            ++low;
+        arr[high] = arr[low]; 
+    }
+    arr[low] = pivot; // 把 pivot 填到最终位置
+    mid = low;        // 返回中间位置
 }
 
 void quickSort(int arr[], int low, int high) {
     if (low < high) {
-        int pi = partition(arr, low, high);
-        quickSort(arr, low, pi - 1);
-        quickSort(arr, pi + 1, high);
+        int mid;
+        partition(arr, low, high, mid);
+        quickSort(arr, low, mid - 1);
+        quickSort(arr, mid + 1, high);
     }
 }
+
 
 void selectionSort(int arr[], int n) {
     for (int i = 0; i < n - 1; ++i) {
@@ -90,14 +103,24 @@ void selectionSort(int arr[], int n) {
 }
 
 void heapify(int arr[], int n, int i) {
-    int largest = i, l = 2 * i + 1, r = 2 * i + 2;
-    if (l < n && arr[l] > arr[largest]) largest = l;
-    if (r < n && arr[r] > arr[largest]) largest = r;
-    if (largest != i) {
-        swap(arr[i], arr[largest]);
-        heapify(arr, n, largest);
+    int largest = i;
+    while (true) {
+        int l = 2 * i + 1;
+        int r = 2 * i + 2;
+        largest = i;
+
+        if (l < n && arr[l] > arr[largest]) largest = l;
+        if (r < n && arr[r] > arr[largest]) largest = r;
+
+        if (largest != i) {
+            swap(arr[i], arr[largest]);
+            i = largest; // 继续向下调整
+        } else {
+            break; // 已满足堆性质，终止
+        }
     }
 }
+
 
 void heapSort(int arr[], int n) {
     for (int i = n / 2 - 1; i >= 0; --i)

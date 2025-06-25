@@ -69,34 +69,33 @@ int getIndex(Graph *G, elementType v) {
 
 // 函数功能：返回顶点 v 的第一个邻接点
 // 参数：G —— 图；v ——顶点字符
-// 返回值：第一个邻接点的字符，若无邻接点返回 '\0'
-elementType firstAdj(Graph *G, elementType v) {
+int firstAdj(Graph *G, elementType v) {
     int index = getIndex(G, v);
     if (index == -1 || G->VerList[index].firstEdge == NULL)
-        return '\0'; // 不存在或没有邻接点
+        return -1; // 顶点不存在或无邻接点
 
-    int adjIndex = G->VerList[index].firstEdge->adjVer;
-    return G->VerList[adjIndex].data;
+    return G->VerList[index].firstEdge->adjVer; // 返回邻接点位置
 }
 
-// 函数功能：返回顶点 v 的邻接点中，w 的下一个邻接点
+
+// 函数功能：返回顶点 v 的邻接点 w 的下一个邻接点下标，若无返回 -1
 // 参数：G —— 图；v ——顶点；w —— v 的一个邻接点
-// 返回值：下一个邻接点字符，若无返回 '\0'
-elementType nextAdj(Graph *G, elementType v, elementType w) {
+int nextAdj(Graph *G, elementType v, elementType w) {
     int indexV = getIndex(G, v);
     int indexW = getIndex(G, w);
     if (indexV == -1 || indexW == -1)
-        return '\0';
+        return -1; // 顶点不存在
 
     EdgeNode *p = G->VerList[indexV].firstEdge;
     while (p && p->adjVer != indexW) {
         p = p->next;
     }
     if (p && p->next) {
-        return G->VerList[p->next->adjVer].data;
+        return p->next->adjVer;
     }
-    return '\0'; // 没有下一个邻接点
+    return -1; // 没有下一个邻接点
 }
+
 
 void dfs(Graph *G, int v, int *visited, int *count) {
     visited[v] = 1;
